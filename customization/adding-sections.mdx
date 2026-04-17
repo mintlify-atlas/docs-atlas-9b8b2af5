@@ -1,0 +1,131 @@
+---
+title: "Add new sections to the landing page"
+description: "How to add a new section to ALESPI Solutions Web — create an HTML partial, register it in index.html, add a navbar tab button, and wire CTA links."
+---
+
+The ALESPI Solutions landing page is built around HTML partials loaded dynamically by `script.js`. Adding a new section means creating a partial file, registering it in `index.html`, and — if you want it to appear as its own tab — adding a navbar button. No changes to `script.js` are needed for basic sections.
+
+<Steps>
+  <Step title="Create the HTML partial">
+    Create a new file in the `src/` directory. Use kebab-case for the filename, for example `src/new-section.html`.
+
+    Each partial is a self-contained HTML fragment — no `<html>`, `<head>`, or `<body>` tags. Use a `<section>` as the root element and follow the same structure used by existing partials:
+
+    ```html
+    <section class="new-section py-20 md:py-32 bg-light" id="new-section">
+      <div class="container mx-auto px-5">
+        <h2 class="section-title mt-0 animate-slideUp">Section Title</h2>
+        <p class="max-w-4xl mx-auto mt-14 text-center text-lg text-gray-600 leading-relaxed">
+          A brief description of this section's content.
+        </p>
+
+        <!-- Your section content here -->
+      </div>
+    </section>
+    ```
+
+    The `id` on the `<section>` element should match the tab name you will use in the next steps.
+  </Step>
+
+  <Step title="Add the container in index.html">
+    Open `index.html` and add a new tab content container inside `#tabs-container`, alongside the existing ones:
+
+    ```html
+    <div id="tabs-container" class="flex-1 flex flex-col">
+      <div data-tab-content="inicio" class="tab-content tab-content-fill tab-content-hero active">
+        <div data-include="src/hero.html"></div>
+        <div data-include="src/valores.html"></div>
+      </div>
+
+      <div data-tab-content="servicios" class="tab-content hidden">
+        <div data-include="src/servicios.html"></div>
+      </div>
+
+      <!-- Add your new tab container here -->
+      <div data-tab-content="new-section" class="tab-content hidden">
+        <div data-include="src/new-section.html"></div>
+      </div>
+    </div>
+    ```
+
+    The `data-tab-content` value must exactly match the tab name you will use in the navbar button and any CTA links.
+
+    <Note>
+      `loadPartials()` in `script.js` automatically queries all elements with a `data-include` attribute using `document.querySelectorAll('[data-include]')` and fetches each file. Any new `data-include` element you add is picked up automatically — no changes to `script.js` are needed.
+    </Note>
+  </Step>
+
+  <Step title="Add a tab button in the navbar">
+    Open `src/navbar.html` and add a new `<button>` element following the same pattern used by existing tab buttons:
+
+    ```html
+    <!-- Existing button — for reference -->
+    <button data-tab="servicios" class="tab-btn ...">Servicios</button>
+
+    <!-- New button -->
+    <button data-tab="new-section" class="tab-btn ...">New Section</button>
+    ```
+
+    The `data-tab` value must match the `data-tab-content` value you set in `index.html`. `initializeTabs()` in `script.js` attaches click handlers to every `.tab-btn` automatically, so no further JavaScript changes are needed.
+  </Step>
+
+  <Step title="Wire CTA links (optional)">
+    You can link to the new tab from anywhere in the page using the `data-open-tab` attribute on any `<a>` element:
+
+    ```html
+    <a href="#new-section" data-open-tab="new-section" class="btn-primary ...">
+      Go to New Section
+    </a>
+    ```
+
+    `initializeTabs()` queries all `[data-open-tab]` elements and wires them automatically. No changes to `script.js` are required.
+
+    ```js
+    // From script.js — runs at page load, handles all [data-open-tab] links
+    tabLinks.forEach((link) => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            activateTab(this.getAttribute('data-open-tab'));
+            navElement?.classList.remove('expanded');
+        });
+    });
+    ```
+  </Step>
+
+  <Step title="Add custom styles (if needed)">
+    If your new section requires styles that cannot be composed from Tailwind utility classes, add them to `input.css` and rebuild:
+
+    ```css
+    .new-section-card {
+      @apply bg-white rounded-2xl shadow-lg p-8 border-t-4 border-primary-500;
+    }
+    ```
+
+    Then run:
+
+    ```bash
+    npm run build
+    ```
+
+    This regenerates `output.css`, which is the stylesheet loaded by `index.html`. You do not need to rebuild if your new partial uses only existing Tailwind utility classes and custom classes already defined in `input.css`.
+  </Step>
+</Steps>
+
+## Add a section without a dedicated tab
+
+If you want the new content to appear inside an existing tab rather than as its own top-level tab, skip steps 3 and 4. Simply add a `data-include` element directly inside an existing tab container:
+
+```html
+<!-- In index.html — adding content to the existing "inicio" tab -->
+<div data-tab-content="inicio" class="tab-content tab-content-fill tab-content-hero active">
+  <div data-include="src/hero.html"></div>
+  <div data-include="src/valores.html"></div>
+  <div data-include="src/new-section.html"></div>  <!-- inline, no tab needed -->
+</div>
+```
+
+The partial will be loaded and rendered as inline content beneath the existing sections in that tab.
+
+<Tip>
+  Use the inline approach for supplementary content that logically belongs to an existing section — for example, adding a testimonials block to the Inicio tab. Use a dedicated tab for content that is significant enough to deserve its own navigation entry.
+</Tip>

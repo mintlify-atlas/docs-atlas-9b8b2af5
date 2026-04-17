@@ -1,0 +1,461 @@
+---
+title: "Frontend JavaScript — script.js function reference"
+description: "Complete reference for all functions in script.js — partial loading, tab navigation, contact form validation, scroll animations, and notification system."
+---
+
+All JavaScript for ALESPI Solutions Web lives in a single file, `script.js`. It is loaded at the bottom of `index.html`, after the closing `</div>` of the tabs container and before `</body>`. This page documents every function, its purpose, its parameters, and when it is called.
+
+## Initialization sequence
+
+Everything is wrapped in a single `DOMContentLoaded` listener. `loadPartials()` is `await`ed first because every subsequent function depends on the partial HTML being injected into the DOM.
+
+```js
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadPartials();
+    initializeTabs();
+    initializeHamburger();
+    initializeContactForm();
+    initializeAnchorScroll();
+    initializeStatsObserver();
+    initializeCardObserver();
+    initializeNavbarShadow();
+});
+```
+
+<Note>
+  Functions 2–8 query elements that only exist after `loadPartials()` resolves. Changing the order or removing the `await` will cause those functions to silently find no elements.
+</Note>
+
+---
+
+## loadPartials()
+
+**Signature:** `async function loadPartials(): Promise<void>`
+
+Fetches every `[data-include]` element's target file in parallel and injects the response HTML into that element. This is the core bootstrapping step that populates the page with real content.
+
+**Called by:** `DOMContentLoaded` handler, with `await`.
+
+```js
+async function loadPartials() {
+    const partialTargets = document.querySelectorAll('[data-include]');
+
+    await Promise.all(Array.from(partialTargets).map(async (target) => {
+        const partialPath = target.getAttribute('data-include');
+
+        try {
+            const response = await fetch(partialPath);
+
+            if (!response.ok) {
+                throw new Error(`No se pudo cargar ${partialPath}`);
+            }
+
+            target.innerHTML = await response.text();
+        } catch (error) {
+            console.error(error);
+            target.innerHTML = `<div class="p-6 text-red-600">Error al cargar ${partialPath}</div>`;
+        }
+    }));
+}
+```
+
+All fetches run concurrently via `Promise.all`. If a file cannot be fetched, that placeholder shows a red error message and the rest of the page continues loading normally.
+
+---
+
+## restartAnimations(container)
+
+**Signature:** `function restartAnimations(container: Element): void`
+
+A helper called by `activateTab()`. Finds every element inside `container` that has an `animate-*` class, temporarily removes those classes (forcing a reflow), then re-adds them. This resets the CSS animation so it plays from the beginning when a tab becomes visible.
+
+**Called by:** `activateTab()`.
+
+```js
+function restartAnimations(container) {
+    const animatedElements = container.querySelectorAll('[class*="animate-"]');
+
+    animatedElements.forEach((element) => {
+        const animationClasses = Array.from(element.classList).filter(
+            (className) => className.startsWith('animate-')
+        );
+
+        if (animationClasses.length === 0) {
+            return;
+        }
+
+        animationClasses.forEach((className) => element.classList.remove(className));
+        void element.offsetWidth; // Force reflow to reset animation state
+        animationClasses.forEach((className) => element.classList.add(className));
+    });
+}
+```
+
+The `void element.offsetWidth` line is a browser trick: reading `offsetWidth` forces the browser to flush pending style recalculations, which resets the animation timeline before the classes are re-added.
+
+---
+
+## activateTab(tabName)
+
+**Signature:** `function activateTab(tabName: string): void`
+
+Switches the visible tab panel. Removes `tab-active` from all `.tab-btn` buttons, hides all `.tab-content` panels, then shows the panel matching `tabName` and marks its button as active.
+
+**Called by:** `initializeTabs()` on `.tab-btn` click and `[data-open-tab]` link click.
+
+```js
+function activateTab(tabName) {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const targetButton = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+    const activeContent = document.querySelector(`[data-tab-content="${tabName}"]`);
+
+    if (!targetButton || !activeContent || targetButton.classList.contains('tab-active')) {
+        return;
+    }
+
+    tabButtons.forEach((btn) => btn.classList.remove('tab-active'));
+    tabContents.forEach((content) => content.classList.add('hidden'));
+
+    targetButton.classList.add('tab-active');
+    activeContent.classList.remove('hidden');
+    restartAnimations(activeContent);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+```
+
+The early-return guard prevents unnecessary DOM manipulation when the user clicks the already-active tab.
+
+---
+
+## initializeTabs()
+
+**Signature:** `function initializeTabs(): void`
+
+Binds click event listeners to two types of elements:
+
+- **`.tab-btn`** — the navbar tab buttons. Calls `activateTab()` with the button's `data-tab` value.
+- **`[data-open-tab]`** — inline links inside partials. Prevents the default anchor navigation and calls `activateTab()` with the element's `data-open-tab` value.
+
+Both types also close the mobile menu by removing the `expanded` class from the `<nav>` element.
+
+**Called by:** `DOMContentLoaded` handler, after `loadPartials()`.
+
+```js
+function initializeTabs() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabLinks = document.querySelectorAll('[data-open-tab]');
+    const navElement = document.querySelector('nav');
+
+    tabButtons.forEach((button) => {
+        button.addEventListener('click', function() {
+            activateTab(this.getAttribute('data-tab'));
+            navElement?.classList.remove('expanded');
+        });
+    });
+
+    tabLinks.forEach((link) => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            activateTab(this.getAttribute('data-open-tab'));
+            navElement?.classList.remove('expanded');
+        });
+    });
+}
+```
+
+---
+
+## initializeHamburger()
+
+**Signature:** `function initializeHamburger(): void`
+
+Binds a click listener to the `.hamburger` button (visible only on mobile). Toggles the `expanded` class on the `<nav>` element. CSS in `input.css` uses `.navbar.expanded .nav-tabs` to reveal the vertical navigation menu.
+
+**Called by:** `DOMContentLoaded` handler, after `loadPartials()`.
+
+```js
+function initializeHamburger() {
+    const hamburger = document.querySelector('.hamburger');
+
+    if (!hamburger) {
+        return;
+    }
+
+    hamburger.addEventListener('click', () => {
+        const tabsContainer = document.querySelector('nav');
+        tabsContainer.classList.toggle('expanded');
+    });
+}
+```
+
+---
+
+## initializeContactForm()
+
+**Signature:** `function initializeContactForm(): void`
+
+Attaches a `submit` event listener to `#formularioContacto`. On submit, it validates four required fields and shows an error notification for the first validation failure found. If all fields pass, it calls `mostrarNotificacion()` with a success message and resets the form.
+
+**Called by:** `DOMContentLoaded` handler, after `loadPartials()`.
+
+Validation rules:
+- All four fields (`#nombre`, `#email`, `#asunto`, `#mensaje`) must be non-empty after trimming whitespace.
+- The email field must match `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`.
+
+```js
+function initializeContactForm() {
+    const formularioContacto = document.getElementById('formularioContacto');
+
+    if (!formularioContacto) {
+        return;
+    }
+
+    formularioContacto.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const nombre  = document.getElementById('nombre').value.trim();
+        const email   = document.getElementById('email').value.trim();
+        const asunto  = document.getElementById('asunto').value.trim();
+        const mensaje = document.getElementById('mensaje').value.trim();
+
+        if (!nombre || !email || !asunto || !mensaje) {
+            mostrarNotificacion('Por favor, completa todos los campos.', 'error');
+            return;
+        }
+
+        const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!regexEmail.test(email)) {
+            mostrarNotificacion('Por favor, ingresa un email valido.', 'error');
+            return;
+        }
+
+        console.log('Formulario enviado:', { nombre, email, asunto, mensaje });
+        mostrarNotificacion('Mensaje enviado exitosamente. Te contactaremos pronto.', 'success');
+        formularioContacto.reset();
+    });
+}
+```
+
+<Note>
+  The form does not send data to any server. The `console.log` line is a placeholder. To handle real submissions you must integrate a backend endpoint, a form service such as Formspree or Netlify Forms, or a serverless function. See the [deployment guide](/development/deployment) for details.
+</Note>
+
+---
+
+## mostrarNotificacion(mensaje, tipo)
+
+**Signature:** `function mostrarNotificacion(mensaje: string, tipo?: string): void`
+
+Creates a fixed-position notification element in the top-right corner of the viewport, displays it with a slide-in animation, and removes it automatically after 5 seconds.
+
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `mensaje` | `string` | — | The text to display in the notification. |
+| `tipo` | `string` | `'info'` | Controls the background color: `'success'` (green), `'error'` (red), `'info'` (blue). |
+
+**Called by:** `initializeContactForm()`.
+
+```js
+function mostrarNotificacion(mensaje, tipo = 'info') {
+    const notificacion = document.createElement('div');
+    notificacion.className = `notificacion notificacion-${tipo}`;
+    notificacion.textContent = mensaje;
+
+    // Inject styles once (guarded by data-notificacion attribute)
+    const estilo = document.createElement('style');
+    if (!document.querySelector('style[data-notificacion]')) {
+        estilo.setAttribute('data-notificacion', 'true');
+        estilo.textContent = `
+            .notificacion {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                animation: slideIn 0.3s ease-out;
+                z-index: 1000;
+                max-width: 400px;
+            }
+            .notificacion-success { background-color: #4caf50; }
+            .notificacion-error   { background-color: #f44336; }
+            .notificacion-info    { background-color: #2196f3; }
+            @keyframes slideIn {
+                from { opacity: 0; transform: translateX(100px); }
+                to   { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes slideOut {
+                to { opacity: 0; transform: translateX(100px); }
+            }
+            .notificacion.saliendo { animation: slideOut 0.3s ease-out forwards; }
+        `;
+        document.head.appendChild(estilo);
+    }
+
+    document.body.appendChild(notificacion);
+
+    // Auto-remove after 5 seconds with slide-out animation
+    setTimeout(() => {
+        notificacion.classList.add('saliendo');
+        setTimeout(() => notificacion.remove(), 300);
+    }, 5000);
+}
+```
+
+The notification styles are injected into `<head>` as a `<style>` element the first time the function runs. The `data-notificacion` guard prevents duplicate style injections on subsequent calls.
+
+---
+
+## initializeStatsObserver() and animarNumero(element)
+
+### initializeStatsObserver()
+
+**Signature:** `function initializeStatsObserver(): void`
+
+Creates an `IntersectionObserver` that watches all `.stat-number` elements. When a stat element becomes 50% visible in the viewport, it triggers `animarNumero()` for that element and then stops observing it (so the animation plays only once).
+
+**Called by:** `DOMContentLoaded` handler, after `loadPartials()`.
+
+```js
+function initializeStatsObserver() {
+    const observerOptions = { threshold: 0.5 };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting && entry.target.classList.contains('stat-number')) {
+                animarNumero(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.stat-number').forEach((element) => {
+        observer.observe(element);
+    });
+}
+```
+
+### animarNumero(element)
+
+**Signature:** `function animarNumero(element: Element): void`
+
+Reads the current text content of `element` as an integer, then animates from 0 to that value over 2000 ms using `setInterval` with 50 ms ticks. Each tick appends `+` to the intermediate value. When the counter reaches the target, the original text (including any suffix like `+`) is restored exactly.
+
+**Called by:** `initializeStatsObserver()` via the `IntersectionObserver` callback.
+
+```js
+function animarNumero(element) {
+    const numero = element.textContent;
+    const valorNumerico = parseInt(numero) || 0;
+    const duracion = 2000; // 2 seconds
+    const incremento = valorNumerico / (duracion / 50);
+
+    let valorActual = 0;
+    const intervalo = setInterval(() => {
+        valorActual += incremento;
+        if (valorActual >= valorNumerico) {
+            element.textContent = numero; // Restore original text exactly
+            clearInterval(intervalo);
+        } else {
+            element.textContent = Math.floor(valorActual) + '+';
+        }
+    }, 50);
+}
+```
+
+---
+
+## initializeCardObserver()
+
+**Signature:** `function initializeCardObserver(): void`
+
+Sets up an `IntersectionObserver` on all `.service-card` and `.valor-card` elements. Cards start hidden (`opacity: 0`, `translateY(20px)`) with a CSS transition applied inline. When 10% of a card enters the viewport, the transition plays to `opacity: 1` and `translateY(0)`, then the card is unobserved.
+
+**Called by:** `DOMContentLoaded` handler, after `loadPartials()`.
+
+```js
+function initializeCardObserver() {
+    const animarElementos = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                animarElementos.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.service-card, .valor-card').forEach((element) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        element.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+        animarElementos.observe(element);
+    });
+}
+```
+
+---
+
+## initializeNavbarShadow()
+
+**Signature:** `function initializeNavbarShadow(): void`
+
+Attaches a `scroll` event listener to `window`. While the user has scrolled more than 50 px from the top, the `.navbar` element receives a deeper `box-shadow`. Scrolling back above 50 px restores the lighter shadow.
+
+**Called by:** `DOMContentLoaded` handler, after `loadPartials()`.
+
+```js
+function initializeNavbarShadow() {
+    const navbar = document.querySelector('.navbar');
+
+    if (!navbar) {
+        return;
+    }
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
+        } else {
+            navbar.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+        }
+    });
+}
+```
+
+---
+
+## initializeAnchorScroll()
+
+**Signature:** `function initializeAnchorScroll(): void`
+
+Adds smooth-scroll behavior to all in-page anchor links (`a[href^="#"]`). Elements that also have a `data-open-tab` attribute are skipped — those are handled by `initializeTabs()` instead.
+
+**Called by:** `DOMContentLoaded` handler, after `loadPartials()`.
+
+```js
+function initializeAnchorScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+
+            if (this.hasAttribute('data-open-tab')) {
+                return; // Let initializeTabs() handle these
+            }
+
+            if (href !== '#' && document.querySelector(href)) {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+}
+```
+
+<Tip>
+  If you add a new partial with `data-open-tab` links, they will be wired up automatically because `initializeTabs()` queries the DOM after all partials are loaded. No changes to `script.js` are required.
+</Tip>

@@ -1,0 +1,74 @@
+{
+  "projectType": "frontend",
+  "projectName": "ALESPI Solutions Web",
+  "projectDescription": "Corporate landing page for ALESPI Solutions, an HVAC engineering company offering installation, design, and maintenance of air conditioning, ventilation, and refrigeration systems for institutional, commercial, and industrial clients in Mexico.",
+  "theme": "almond",
+  "primaryColor": "#1a3d73",
+  "lightColor": "#f3f7fc",
+  "darkColor": "#0a1628",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Site Sections",
+        "pages": [
+          "sections/hero",
+          "sections/services",
+          "sections/expertise",
+          "sections/credentials",
+          "sections/contact"
+        ]
+      },
+      {
+        "group": "Development",
+        "pages": [
+          "development/architecture",
+          "development/styling",
+          "development/javascript",
+          "development/deployment"
+        ]
+      },
+      {
+        "group": "Customization",
+        "pages": [
+          "customization/content",
+          "customization/branding",
+          "customization/adding-sections"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Modular HTML partial loading via fetch() for clean code separation",
+    "Tab-based navigation system for hero, services, expertise, credentials, and contact sections",
+    "Tailwind CSS v3 utility-first styling with custom brand tokens and animations",
+    "Client-side contact form with email validation and visual notifications",
+    "Intersection Observer-based scroll animations and animated statistics counters",
+    "Responsive design with hamburger menu for mobile devices",
+    "Sticky navbar with scroll shadow effect",
+    "Certifications from Daikin, Americ A.C., and CECATI displayed",
+    "Institutional client portfolio: SEDENA, Guardia Nacional, IMSS, ISSSTE, ANAM",
+    "Static site deployable on Netlify, Vercel, GitHub Pages, or any HTTP server"
+  ],
+  "publicApiSurface": [
+    "loadPartials() — fetches and injects HTML partials declared with data-include attributes",
+    "activateTab(tabName) — switches the visible tab section by name",
+    "initializeTabs() — binds click events to .tab-btn and [data-open-tab] elements",
+    "initializeHamburger() — toggles nav expanded class for mobile menu",
+    "initializeContactForm() — validates and handles #formularioContacto submission",
+    "mostrarNotificacion(mensaje, tipo) — displays a timed slide-in notification",
+    "initializeStatsObserver() — triggers animated number counters on scroll",
+    "initializeCardObserver() — fade-in animation for .service-card and .valor-card on scroll",
+    "initializeNavbarShadow() — adjusts navbar box-shadow on scroll",
+    "initializeAnchorScroll() — smooth scroll for anchor links",
+    "npm run build — compiles input.css to output.css via Tailwind",
+    "npm run dev — watches input.css for changes",
+    "npm start — serves the site on http://localhost:8080"
+  ]
+}

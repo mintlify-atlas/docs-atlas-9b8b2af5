@@ -1,0 +1,168 @@
+---
+title: "Update site content — text, images, and contact info"
+description: "How to update text, images, contact details, and service descriptions in the ALESPI Solutions landing page by editing the HTML partials in the src/ directory."
+---
+
+Each section of the ALESPI Solutions landing page lives in its own HTML partial inside the `src/` directory. To update content, you open the relevant file, edit the text or image attributes, and save — no build step required for content-only changes.
+
+## Which file to edit
+
+<CardGroup cols={2}>
+  <Card title="Hero section" icon="house">
+    Headline, subheadline, CTA button labels, and stat mini-cards.
+    **File:** `src/hero.html`
+  </Card>
+  <Card title="Company values" icon="star">
+    Values displayed on the Inicio tab below the hero.
+    **File:** `src/valores.html`
+  </Card>
+  <Card title="Service cards" icon="wrench">
+    The three service cards: Instalación, Cálculo y Diseño, Mantenimiento y Reparación.
+    **File:** `src/servicios.html`
+  </Card>
+  <Card title="HVAC systems list" icon="list">
+    Service lines and expertise list shown in the Expertiz tab.
+    **File:** `src/expertiz.html`
+  </Card>
+  <Card title="Statistics counters" icon="chart-bar">
+    Animated number counters shown in the Credenciales tab.
+    **File:** `src/estadisticas.html`
+  </Card>
+  <Card title="Certifications & clients" icon="certificate">
+    Daikin, Americ A.C., and CECATI badges plus client logos.
+    **File:** `src/credenciales.html`
+  </Card>
+  <Card title="Contact info" icon="phone">
+    Address, phone numbers, email addresses, and the embedded map.
+    **File:** `src/contacto.html`
+  </Card>
+  <Card title="Footer" icon="rectangle-terminal">
+    Footer links, copyright text, and any footer branding.
+    **File:** `src/footer.html`
+  </Card>
+</CardGroup>
+
+<Note>
+  The navbar brand name ("ALESPI Solutions") is in `src/navbar.html`. Edit it there to change how the brand appears in the top navigation bar.
+</Note>
+
+## Update contact information
+
+The phone numbers and email addresses are plain text nodes inside `.info-item` blocks in `src/contacto.html`.
+
+**To update phones or emails:**
+
+<Steps>
+  <Step title="Open the contact partial">
+    Open `src/contacto.html` in your editor.
+  </Step>
+  <Step title="Locate the phone block">
+    Find the `<div>` whose sibling icon has `fa-phone`. The paragraph immediately below contains the phone numbers, one per line separated by `<br>`:
+
+    ```html
+    <div class="info-item flex flex-col sm:flex-row gap-4 sm:gap-6 items-start mt-8 animate-slideUp" style="animation-delay: 0.2s;">
+      <div class="gradient-primary w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl flex-shrink-0 hover:scale-110 transition-transform duration-300 hover:shadow-lg hover:shadow-primary-500/50">
+        <i class="fas fa-phone group-hover:animate-pulse"></i>
+      </div>
+      <div>
+        <h4 class="text-xl font-bold text-dark mb-2">Telefonos</h4>
+        <p class="text-gray-600 leading-relaxed hover:text-gray-800 transition-colors">55-19-26-13-08 Ing. Jaime Alonso<br>22-15-68-59-53 Arq. Jaime Samir<br>55-21-97-71-50 Ing. Jeiro Said</p>
+      </div>
+    </div>
+    ```
+
+    Replace the numbers and names inside the `<p>` tag with your updated values, keeping the `<br>` tags as line separators.
+  </Step>
+  <Step title="Locate the email block">
+    Find the `<div>` whose sibling icon has `fa-envelope`. Update the email addresses inside its `<p>` tag the same way:
+
+    ```html
+    <div class="info-item flex flex-col sm:flex-row gap-4 sm:gap-6 items-start mt-8 animate-slideUp" style="animation-delay: 0.3s;">
+      <div class="gradient-primary w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl flex-shrink-0 hover:scale-110 transition-transform duration-300 hover:shadow-lg hover:shadow-primary-500/50">
+        <i class="fas fa-envelope group-hover:animate-pulse"></i>
+      </div>
+      <div>
+        <h4 class="text-xl font-bold text-dark mb-2">Correos Electronicos</h4>
+        <p class="text-gray-600 leading-relaxed hover:text-gray-800 transition-colors">jaime.ah@alespi.mx<br>jaime.sae@alespi.mx<br>jairo.sae@alespi.mx</p>
+      </div>
+    </div>
+    ```
+  </Step>
+  <Step title="Update the address (optional)">
+    The address is in the first `.info-item` block, next to the `fa-map-marker-alt` icon. Edit the `<p>` tag text and also update the `src` and `href` of the embedded Google Maps `<iframe>` and its surrounding `<a>` tag to reflect the new location.
+  </Step>
+  <Step title="Save and reload">
+    Save `src/contacto.html` and reload `index.html` in your browser. No build step is needed.
+  </Step>
+</Steps>
+
+## Update service cards
+
+The three service cards are `.service-card` divs inside `src/servicios.html`. Each card follows the same structure.
+
+**To edit a service card:**
+
+<Steps>
+  <Step title="Open the services partial">
+    Open `src/servicios.html` in your editor.
+  </Step>
+  <Step title="Find the card you want to edit">
+    Each card is a `<div class="service-card ...">` block. Here is the structure of the first card as an example:
+
+    ```html
+    <div class="service-card bg-white p-10 rounded-2xl shadow-lg card-hover border-t-4 border-transparent hover:border-primary-500 transition-all duration-300 group overflow-hidden animate-scaleIn" style="animation-delay: 0.1s;">
+      <div class="flex justify-center mb-6 relative">
+        <div class="gradient-primary w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl glow-icon group-hover:scale-110 transition-transform duration-300">
+          <i class="fas fa-hammer"></i>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold text-dark mb-4 text-center group-hover:text-gradient transition-all duration-300">Instalacion</h3>
+      <p class="text-gray-600 text-center leading-relaxed group-hover:text-gray-700 transition-colors duration-300">Ejecucion profesional de sistemas de aire acondicionado, ventilacion y refrigeracion, asegurando precision tecnica, seguridad operativa y alto desempeno desde la puesta en marcha.</p>
+    </div>
+    ```
+  </Step>
+  <Step title="Edit the title and description">
+    Update the text inside the `<h3>` tag to change the card title. Update the text inside the `<p>` tag to change the description.
+  </Step>
+  <Step title="Change the icon (optional)">
+    The icon is set by the Font Awesome class on the `<i>` element (e.g., `fa-hammer`). Replace it with any valid Font Awesome 6 solid icon class to change the visual.
+  </Step>
+  <Step title="Save and reload">
+    Save `src/servicios.html` and reload `index.html` in your browser.
+  </Step>
+</Steps>
+
+## Add or replace images
+
+All images are stored in the `images/` directory at the project root. The directory currently contains:
+
+- `LOGO ALESPI BLANCO.png` — hero logo panel
+- `Daikin.png`, `Americ_ac.png`, `cecati.png` — certification logos
+- `guadria_nacional.svg`, `anam.png`, `imss.png`, `issste.png`, `sedena.png` — client logos
+- `favicon.ico` — browser tab icon
+
+**To replace an image:**
+
+<Steps>
+  <Step title="Add the new image file">
+    Copy or move your new image into the `images/` directory.
+  </Step>
+  <Step title="Update the src attribute">
+    Open the relevant partial (e.g., `src/hero.html` for the logo, `src/credenciales.html` for certification logos) and update the `src` attribute of the `<img>` element to point to the new filename:
+
+    ```html
+    <!-- Before -->
+    <img src="images/LOGO ALESPI BLANCO.png" alt="Logo ALESPI Solutions" class="w-full max-w-lg mx-auto object-contain">
+
+    <!-- After -->
+    <img src="images/LOGO ALESPI NUEVO.png" alt="Logo ALESPI Solutions" class="w-full max-w-lg mx-auto object-contain">
+    ```
+  </Step>
+  <Step title="Update the alt attribute">
+    Keep the `alt` attribute accurate and descriptive for accessibility.
+  </Step>
+</Steps>
+
+<Tip>
+  You do not need to delete the old image file. Unused images are simply not referenced and do not affect the page.
+</Tip>

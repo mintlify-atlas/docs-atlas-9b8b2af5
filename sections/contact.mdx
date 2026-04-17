@@ -1,0 +1,162 @@
+---
+title: "Contact section — form, location, and contact info"
+description: "The contact section has a validated form, company address in Puebla, phone numbers for three contacts, email addresses, and a Google Maps embed."
+---
+
+The contact section lives in `src/contacto.html` and fills the **Contacto** tab. It presents the company's physical location, contact details, and a validated inquiry form side by side in a two-column grid.
+
+## Contact information
+
+### Address
+
+> Calzada Zavaleta 313-A  
+> Plaza Bosques de Zavaleta int. 19
+
+### Phone numbers
+
+Three contacts are listed:
+
+| Name | Phone |
+|------|-------|
+| Ing. Jaime Alonso | 55-19-26-13-08 |
+| Arq. Jaime Samir | 22-15-68-59-53 |
+| Ing. Jeiro Said | 55-21-97-71-50 |
+
+### Email addresses
+
+| Address |
+|---------|
+| jaime.ah@alespi.mx |
+| jaime.sae@alespi.mx |
+| jairo.sae@alespi.mx |
+
+## Google Maps embed
+
+Directly below the address block, a clickable card links to the location on Google Maps. Clicking opens the full Google Maps view. The card wraps an `<iframe>` embed:
+
+```html contacto.html
+<a
+  href="https://www.google.com/maps/search/?api=1&query=Calzada+Zavaleta+313-A+Plaza+Bosques+de+Zavaleta+int.+19+Puebla"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="block mt-8 rounded-3xl overflow-hidden bg-white shadow-xl border border-primary-500/10"
+>
+  <!-- Header bar with title and arrow icon -->
+  <div class="h-72 bg-gray-100">
+    <iframe
+      title="Mapa de ubicacion ALESPI Solutions"
+      src="https://maps.google.com/maps?q=Calzada%20Zavaleta%20313-A%20Plaza%20Bosques%20de%20Zavaleta%20int.%2019%20Puebla&t=&z=16&ie=UTF8&iwloc=&output=embed"
+      class="w-full h-full pointer-events-none"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+  </div>
+</a>
+```
+
+<Note>
+  `pointer-events-none` is applied to the iframe so that mouse events pass through to the anchor wrapper. Clicking anywhere on the map card opens Google Maps rather than panning inside the embedded frame.
+</Note>
+
+## Contact form
+
+The form carries the ID `#formularioContacto` and is handled by `initializeContactForm()` in `script.js`.
+
+### Form fields
+
+All four fields are required:
+
+| Field ID | Label | Type |
+|----------|-------|------|
+| `nombre` | Nombre Completo | `text` |
+| `email` | Email | `email` |
+| `asunto` | Asunto | `text` |
+| `mensaje` | Mensaje | `textarea` (5 rows) |
+
+```html contacto.html
+<form
+  class="contacto-form bg-white p-6 sm:p-8 md:p-10 rounded-2xl shadow-2xl border-l-4 border-primary-500"
+  id="formularioContacto"
+>
+  <!-- Nombre Completo -->
+  <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre" />
+
+  <!-- Email -->
+  <input type="email" id="email" name="email" required placeholder="tu@email.com" />
+
+  <!-- Asunto -->
+  <input type="text" id="asunto" name="asunto" required placeholder="Asunto del mensaje" />
+
+  <!-- Mensaje -->
+  <textarea id="mensaje" name="mensaje" rows="5" required placeholder="Tu mensaje aquí..."></textarea>
+
+  <button type="submit" class="btn-primary btn-primary-dark w-full">
+    Enviar Mensaje
+  </button>
+</form>
+```
+
+### Form validation logic
+
+`initializeContactForm()` attaches a `submit` listener and performs two validation checks before accepting the form:
+
+```js script.js
+formularioContacto.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const nombre  = document.getElementById('nombre').value.trim();
+  const email   = document.getElementById('email').value.trim();
+  const asunto  = document.getElementById('asunto').value.trim();
+  const mensaje = document.getElementById('mensaje').value.trim();
+
+  // Check 1: all fields must be non-empty
+  if (!nombre || !email || !asunto || !mensaje) {
+    mostrarNotificacion('Por favor, completa todos los campos.', 'error');
+    return;
+  }
+
+  // Check 2: email must match basic RFC pattern
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!regexEmail.test(email)) {
+    mostrarNotificacion('Por favor, ingresa un email valido.', 'error');
+    return;
+  }
+
+  console.log('Formulario enviado:', { nombre, email, asunto, mensaje });
+  mostrarNotificacion('Mensaje enviado exitosamente. Te contactaremos pronto.', 'success');
+  formularioContacto.reset();
+});
+```
+
+### Notification system
+
+Validation outcomes and submission confirmation are displayed via `mostrarNotificacion(mensaje, tipo)`. Notifications appear as fixed-position toasts in the top-right corner (full-width on mobile) and auto-dismiss after 5 seconds with a slide-out animation.
+
+| `tipo` value | Background color | Use case |
+|---|---|---|
+| `'error'` | `#f44336` (red) | Empty fields or invalid email |
+| `'success'` | `#4caf50` (green) | Successful form submission |
+| `'info'` | `#2196f3` (blue) | General information |
+
+<Warning>
+  The form currently performs **frontend-only validation**. On a valid submission, the form data is logged to the browser console with `console.log(...)` but is not sent anywhere. You must integrate a backend endpoint or a serverless function (for example, a Netlify Function, Vercel serverless route, or a third-party form service such as Formspree) to actually deliver messages.
+</Warning>
+
+## File location
+
+```
+src/contacto.html
+```
+
+The section ID is `#contacto`. The navbar activates this tab via `data-tab="contacto"` on its button. The "Solicitar cotizacion" CTA in the hero section also links here via `data-open-tab="contacto"`.
+
+## Related sections
+
+<CardGroup cols={2}>
+  <Card title="Hero section" icon="house" href="/sections/hero">
+    The "Solicitar cotizacion" button in the hero links directly to this tab.
+  </Card>
+  <Card title="Credentials section" icon="certificate" href="/sections/credentials">
+    Certifications and client portfolio that establish trust before a user submits a request.
+  </Card>
+</CardGroup>

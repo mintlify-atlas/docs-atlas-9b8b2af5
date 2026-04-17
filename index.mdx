@@ -1,97 +1,62 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "ALESPI Solutions Web: HVAC Corporate Landing Page"
+description: "Documentation for ALESPI Solutions Web — a modular static HTML site for an HVAC company, built with Tailwind CSS v3 and vanilla JavaScript."
 ---
 
-## Setting up
+ALESPI Solutions Web is a corporate landing page for ALESPI Solutions S.A. de C.V., an HVAC engineering company based in Puebla, Mexico. The site presents the company's services, technical expertise, certifications, institutional client portfolio, and contact information in a modern, fully responsive interface built with HTML, Tailwind CSS v3, and vanilla JavaScript.
 
-Get your documentation site up and running in minutes.
+The project uses a modular partial-loading architecture: `index.html` serves as the application shell, and each section (hero, services, expertise, credentials, contact) lives in its own HTML file under `src/`, loaded dynamically at runtime via `fetch()`. Navigation between sections is handled by a tab system managed in `script.js`.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Introduction" icon="circle-info" href="/introduction">
+    Learn what ALESPI Solutions Web is, how it is structured, and what technologies power it.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get the site running locally in minutes with Node.js, Tailwind, and a live server.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Site Sections" icon="table-layout" href="/sections/hero">
+    Explore each section of the landing page — hero, services, expertise, credentials, and contact.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Architecture" icon="sitemap" href="/development/architecture">
+    Understand the modular partial-loading system, tab navigation, and project structure.
   </Card>
-</Columns>
+  <Card title="Styling Guide" icon="paintbrush" href="/development/styling">
+    Learn how Tailwind CSS v3 is configured, compiled, and extended with custom brand tokens.
+  </Card>
+  <Card title="Customization" icon="pen-to-square" href="/customization/content">
+    Update content, swap branding, and add new sections to the site.
+  </Card>
+</CardGroup>
 
-## Create beautiful pages
+## Getting started
 
-Everything you need to create world-class documentation.
+<Steps>
+  <Step title="Clone the repository">
+    Download the project source code to your local machine.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+    ```bash
+    git clone https://github.com/Pollo184/ALESPI-Solutions-Web.git
+    cd ALESPI-Solutions-Web
+    ```
+  </Step>
+  <Step title="Install dependencies">
+    Install the build tools — Tailwind CSS, PostCSS, and live-server.
 
-## Need inspiration?
+    ```bash
+    npm install
+    ```
+  </Step>
+  <Step title="Build styles and start the server">
+    Compile the CSS and launch the local development server.
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+    ```bash
+    npm run preview
+    ```
+
+    The site is available at `http://localhost:8080`.
+  </Step>
+</Steps>
+
+<Note>
+  The site uses `fetch()` to load HTML partials, so it must be served through an HTTP server. Opening `index.html` directly from the filesystem will not work.
+</Note>

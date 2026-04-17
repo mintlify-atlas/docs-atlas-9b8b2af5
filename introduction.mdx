@@ -1,0 +1,92 @@
+---
+title: "ALESPI Solutions Web — corporate HVAC landing page"
+description: "Overview of ALESPI Solutions Web — a modular static HTML site for an HVAC engineering company, built with Tailwind CSS v3 and vanilla JavaScript."
+---
+
+This page introduces the ALESPI Solutions Web project: what the company does, what the website covers, how it is built, and how its parts fit together.
+
+## What is ALESPI Solutions?
+
+ALESPI Solutions S.A. de C.V. is an HVAC engineering company headquartered in Puebla, Mexico. The company specialises in three service areas for institutional, commercial, and industrial clients:
+
+- **Installation** — supply and installation of air conditioning and climate control equipment
+- **Design and calculation** — engineering studies and thermal load calculations for new and existing buildings
+- **Maintenance and repair** — scheduled servicing and corrective repair of HVAC systems
+
+Institutional clients include SEDENA, Guardia Nacional, IMSS, ISSSTE, and ANAM. The company holds manufacturer certifications from Daikin, Americ A.C., and CECATI.
+
+## What the website does
+
+The ALESPI Solutions Web site is a single-page corporate landing page (version 3.0). It presents the company to potential clients across five named sections:
+
+| Section | Purpose |
+| --- | --- |
+| Inicio | Hero banner with company name and primary call to action |
+| Servicios | Description of the three service lines |
+| Expertiz | Technical expertise and differentiators |
+| Credenciales | Certifications and institutional client portfolio |
+| Contacto | Contact form and company location |
+
+## Technology stack
+
+The project is built entirely with web platform fundamentals and a minimal Node.js toolchain:
+
+- **HTML5** — semantic markup for the application shell and all section partials
+- **Tailwind CSS v3** (v3.4.1) — utility-first styling compiled from `input.css` to `output.css`
+- **Vanilla JavaScript** — tab navigation and dynamic partial loading in `script.js`
+- **PostCSS** with Autoprefixer — CSS post-processing configured in `postcss.config.js`
+- **live-server** — lightweight HTTP development server with automatic reload
+
+No frameworks, build bundlers, or JavaScript runtimes are required at runtime. The output is a fully static site.
+
+## Architecture overview
+
+### Partial-loading system
+
+`index.html` is the application shell. It contains the page skeleton, loads `output.css`, and references `script.js`. Each of the five content sections lives in its own HTML file under `src/`:
+
+```
+src/
+├── navbar.html
+├── hero.html
+├── servicios.html
+├── expertiz.html
+├── credenciales.html
+├── contacto.html
+├── estadisticas.html
+├── valores.html
+└── footer.html
+```
+
+At runtime, `script.js` uses `fetch()` to load each partial into the shell. Because `fetch()` requires an HTTP origin, the site **cannot** be opened directly from the filesystem — it must be served through an HTTP server.
+
+### Tab navigation
+
+`script.js` manages an in-page tab system. All partials are fetched and injected at page load — clicking a tab simply toggles the `hidden` class on the corresponding content panel without any additional network requests. The `inicio` (home) tab also loads `src/valores.html`, which contains the "Quienes Somos" section with the company's Mision, Vision, and Fortaleza cards.
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Modular architecture" icon="puzzle-piece" href="/development/architecture">
+    Content is split into independent HTML partials under `src/`, loaded on demand via `fetch()`. Adding or editing a section does not require touching the application shell.
+  </Card>
+  <Card title="Tab navigation" icon="table-columns" href="/development/architecture">
+    A vanilla JavaScript tab system switches between sections without page reloads, keeping the URL stable and the experience fast.
+  </Card>
+  <Card title="Responsive design" icon="mobile-screen" href="/development/styling">
+    Tailwind CSS utility classes provide a fully responsive layout that adapts from mobile to widescreen without custom media query overrides.
+  </Card>
+  <Card title="Contact form" icon="envelope" href="/sections/contact">
+    The Contacto section includes a ready-to-customise HTML contact form for capturing enquiries directly from the landing page.
+  </Card>
+  <Card title="Scroll animations" icon="wand-magic-sparkles" href="/development/architecture">
+    Subtle entrance animations are triggered as sections scroll into view, implemented in `script.js` using the Intersection Observer API.
+  </Card>
+  <Card title="Static deployment" icon="cloud-arrow-up" href="/quickstart">
+    The compiled output is a plain static site. You can deploy it to Netlify, Vercel, GitHub Pages, or any HTTP server with no server-side runtime.
+  </Card>
+</CardGroup>
+
+## Next step
+
+To run the project on your machine, follow the [quickstart guide](/quickstart).

@@ -1,0 +1,113 @@
+---
+title: "Services section — HVAC service offerings"
+description: "ALESPI's three HVAC service lines — installation, design, and maintenance — displayed as interactive hover cards with gradient sweep and scroll animations."
+---
+
+The services section lives in `src/servicios.html` and is the entire content of the **Servicios** tab. It presents ALESPI's three core service lines as interactive cards in a responsive grid.
+
+## Overview
+
+The section opens with a title and introductory paragraph:
+
+> Ofrecemos soluciones especializadas para el diseno, instalacion, mantenimiento y optimizacion de sistemas HVAC, adaptadas a los requerimientos operativos de cada cliente.
+
+Below that, three `.service-card` elements are laid out in a `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` grid.
+
+## Service cards
+
+<CardGroup cols={3}>
+  <Card title="Instalacion" icon="hammer">
+    Ejecucion profesional de sistemas de aire acondicionado, ventilacion y refrigeracion, asegurando precision tecnica, seguridad operativa y alto desempeno desde la puesta en marcha.
+  </Card>
+  <Card title="Calculo y Diseno" icon="pencil">
+    Desarrollo de soluciones HVAC con criterios de eficiencia energetica, capacidad operativa y viabilidad tecnica, orientadas a maximizar rendimiento y confiabilidad.
+  </Card>
+  <Card title="Mantenimiento y Reparacion" icon="wrench">
+    Atencion preventiva y correctiva para conservar la continuidad operativa de los sistemas, prolongar su vida util y reducir riesgos de falla.
+  </Card>
+</CardGroup>
+
+## Card interaction
+
+Each card has a layered hover interaction driven entirely by Tailwind utility classes and CSS transitions.
+
+<Steps>
+  <Step title="Top gradient border sweeps in">
+    An absolutely-positioned `h-1` div with a `bg-gradient-to-r` from the brand palette starts at `-translate-x-full` and transitions to `translate-x-0` on hover, creating a sweeping top border effect.
+
+    ```html servicios.html
+    <div class="absolute top-0 left-0 w-full h-1
+                bg-gradient-to-r from-primary-500 to-secondary-400
+                -translate-x-full group-hover:translate-x-0
+                transition-transform duration-500">
+    </div>
+    ```
+  </Step>
+  <Step title="Icon scales up">
+    The icon container carries the `.glow-icon` class and `group-hover:scale-110 transition-transform duration-300`. A second absolutely-positioned glow overlay fades in behind the icon with `group-hover:opacity-20 blur`.
+  </Step>
+  <Step title="Card border activates">
+    The card itself uses `border-t-4 border-transparent hover:border-primary-500` so the top border slot is always reserved but only colored on hover.
+  </Step>
+</Steps>
+
+### Relevant CSS classes
+
+| Class | Role |
+|---|---|
+| `.service-card` | Base card selector; used by `initializeCardObserver()` to apply scroll-triggered fade-in |
+| `.card-hover` | Adds a subtle lift shadow on hover |
+| `.gradient-primary` | Applies the brand gradient as a background |
+| `.glow-icon` | Adds a drop-shadow glow to icon containers |
+
+## Scroll-triggered animation
+
+`initializeCardObserver()` in `script.js` uses the Intersection Observer API to fade cards in as you scroll them into view:
+
+```js script.js
+function initializeCardObserver() {
+  const animarElementos = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+        animarElementos.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.1
+  });
+
+  document.querySelectorAll('.service-card, .valor-card').forEach((element) => {
+    element.style.opacity = '0';
+    element.style.transform = 'translateY(20px)';
+    element.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+    animarElementos.observe(element);
+  });
+}
+```
+
+Cards start at `opacity: 0` and `translateY(20px)`. Once 10% of the card enters the viewport, they transition to fully visible and in position. The observer then disconnects from each card after it has animated once.
+
+<Note>
+  The staggered CSS `animation-delay` values on each card (0.1s, 0.2s, 0.3s) provide an additional visual offset on initial page load when the `animate-scaleIn` class fires, separate from the scroll observer behavior.
+</Note>
+
+## File location
+
+```
+src/servicios.html
+```
+
+The section ID is `#servicios`. The navbar activates this tab via `data-tab="servicios"` on its button.
+
+## Related sections
+
+<CardGroup cols={2}>
+  <Card title="Expertise section" icon="star" href="/sections/expertise">
+    Deeper breakdown of service lines and full list of HVAC system types.
+  </Card>
+  <Card title="Hero section" icon="house" href="/sections/hero">
+    The "Conocer servicios" CTA in the hero links directly to this tab.
+  </Card>
+</CardGroup>

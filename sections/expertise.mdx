@@ -1,0 +1,119 @@
+---
+title: "Expertise section — technical capabilities and systems"
+description: "Technical expertise for ALESPI Solutions — 14 HVAC system types including mini-split, VRV, chilled water, industrial ventilation, and refrigeration chambers."
+---
+
+The expertise section lives in `src/expertiz.html` and fills the **Expertiz** tab. It is divided into two distinct sub-sections: **Lineas de Servicio** and **Expertiz Tecnico**.
+
+## Sub-section 1: Lineas de Servicio
+
+This sub-section mirrors the layout of the services tab but uses a dark card style. The introductory paragraph reads:
+
+> Ofrecemos soluciones especializadas para el diseno, instalacion, mantenimiento y optimizacion de sistemas HVAC, adaptadas a los requerimientos operativos de cada cliente.
+
+Three dark cards are displayed in a `grid-cols-1 md:grid-cols-2 xl:grid-cols-3` grid:
+
+<CardGroup cols={3}>
+  <Card title="Instalacion" icon="hammer">
+    Ejecucion profesional de sistemas de aire acondicionado, ventilacion y refrigeracion, asegurando precision tecnica, seguridad operativa y alto desempeno desde la puesta en marcha.
+  </Card>
+  <Card title="Calculo y Diseno" icon="pencil">
+    Desarrollo de soluciones HVAC con criterios de eficiencia energetica, capacidad operativa y viabilidad tecnica, orientadas a maximizar rendimiento y confiabilidad.
+  </Card>
+  <Card title="Mantenimiento y Reparacion" icon="wrench">
+    Atencion preventiva y correctiva para conservar la continuidad operativa de los sistemas, prolongar su vida util y reducir riesgos de falla.
+  </Card>
+</CardGroup>
+
+Unlike the services tab cards, these use `bg-dark text-white rounded-2xl` — a solid dark background rather than white with a hover border sweep.
+
+## Sub-section 2: Expertiz Tecnico
+
+This sub-section provides the full list of HVAC system types ALESPI works with. The introductory paragraph reads:
+
+> Contamos con experiencia en sistemas de aire acondicionado, refrigeracion y ventilacion para aplicaciones de diversa complejidad tecnica.
+
+The layout is a two-column grid: placeholder images on the left, and a dark panel listing all system types on the right.
+
+### HVAC systems list
+
+The dark panel is titled **Sistemas de Aire Acondicionado, Refrigeracion y Ventilacion** and lists 14 system types in a two-column internal grid:
+
+<AccordionGroup>
+  <Accordion title="Air conditioning systems" defaultOpen={true}>
+    - Mini Split
+    - VRV (Variable Refrigerant Volume)
+    - Equipos de Precision
+    - Tipo Paquete
+    - Sistemas de agua helada
+    - Sistemas Divididos
+    - UMA (Unidad Manejadora de Aire)
+  </Accordion>
+  <Accordion title="Refrigeration systems">
+    - Camara de Refrigeracion y Congelacion
+  </Accordion>
+  <Accordion title="Ventilation systems">
+    - Extractor Helicoidal
+    - Extractor Jet-Fan
+    - Cortinas de Aire
+    - Extractor Axial
+    - Extractor tipo Hongo
+    - Extractor Vent-Set
+  </Accordion>
+</AccordionGroup>
+
+The full HTML list from `src/expertiz.html`:
+
+```html expertiz.html
+<ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-gray-100 leading-relaxed">
+  <li>Mini Split</li>
+  <li>VRV</li>
+  <li>Equipos de Precision</li>
+  <li>Tipo Paquete</li>
+  <li>Sistemas de agua helada</li>
+  <li>Sistemas Divididos</li>
+  <li>UMA</li>
+  <li>Camara de Refrigeracion y Congelacion</li>
+  <li>Extractor Helicoidal</li>
+  <li>Extractor Jet-Fan</li>
+  <li>Cortinas de Aire</li>
+  <li>Extractor Axial</li>
+  <li>Extractor tipo Hongo</li>
+  <li>Extractor Vent-Set</li>
+</ul>
+```
+
+### Placeholder image slots
+
+Three image slots appear on the left side of the Expertiz Tecnico layout. They are currently rendered as dashed-border placeholders and are intended to be replaced with real project photography:
+
+| Slot | Intended content |
+|------|-----------------|
+| 1 | Imagen de instalacion en azotea |
+| 2 | Imagen de cuarto mecanico HVAC |
+| 3 | Imagen de sistema de ventilacion industrial |
+
+Each placeholder is `h-48 rounded-3xl border-2 border-dashed border-primary-500/50 bg-white`.
+
+<Tip>
+  To replace a placeholder, swap the dashed-border div with an `<img>` tag pointing to your image file. Keep the `h-48 rounded-3xl` classes or adjust the height to match your asset aspect ratio.
+</Tip>
+
+## File location
+
+```
+src/expertiz.html
+```
+
+The section ID is `#expertiz`. Both sub-sections live inside the same `<section>` element, separated by a `space-y-20` wrapper div.
+
+## Related sections
+
+<CardGroup cols={2}>
+  <Card title="Services section" icon="list" href="/sections/services">
+    The services tab presents the same three service lines in a lighter card style.
+  </Card>
+  <Card title="Credentials section" icon="certificate" href="/sections/credentials">
+    Certifications and institutional clients that back up the technical expertise described here.
+  </Card>
+</CardGroup>

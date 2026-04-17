@@ -1,0 +1,178 @@
+---
+title: "Customize branding — colors, fonts, and visual tokens"
+description: "Update ALESPI Solutions Web's brand colors, font family, and animations by editing tailwind.config.js and input.css, then rebuilding with npm run build."
+---
+
+All brand tokens — colors, font family, and animation definitions — are declared in `tailwind.config.js` under `theme.extend`. After editing this file or `input.css`, you must recompile the stylesheet with `npm run build` before changes appear in the browser.
+
+<Warning>
+  Never edit `output.css` directly. It is a generated file and will be overwritten the next time you run the build.
+</Warning>
+
+## Color palette
+
+Colors are defined in `tailwind.config.js` → `theme.extend.colors`. The full color configuration is:
+
+```js
+colors: {
+  primary: {
+    50:  '#eef3f9',
+    100: '#dbe6f2',
+    200: '#b7cbe1',
+    300: '#8ea9ca',
+    400: '#5e7faa',
+    500: '#1a3d73',  // main brand blue — used for buttons, borders, accents
+    600: '#163562',
+    700: '#122a4d',
+    800: '#0d1f39',
+  },
+  secondary: {
+    100: '#dde8f6',
+    200: '#c3d5ec',
+    300: '#9eb8dc',
+    400: '#6f90be',
+    500: '#4d71a2',
+  },
+  dark:  '#0a1628',  // near-black used for body text and dark backgrounds
+  light: '#f3f7fc',  // off-white used for section backgrounds
+},
+```
+
+<Info>
+  `primary.500` (`#1a3d73`) is the main brand blue. It is used for CTA buttons, card borders, icon backgrounds, and form focus states throughout the page.
+</Info>
+
+## Change the primary brand color
+
+To rebrand the site to a different primary color, update the `primary` scale in `tailwind.config.js` and rebuild.
+
+<Steps>
+  <Step title="Open tailwind.config.js">
+    Open `tailwind.config.js` at the project root in your editor.
+  </Step>
+  <Step title="Update the primary color scale">
+    Replace the hex values in the `primary` object. At a minimum, update `primary.500` (the most-used shade). For a consistent scale, generate a full 50–800 palette from your chosen base color using a tool like the Tailwind color generator.
+
+    ```js
+    primary: {
+      50:  '#f0fdf4',
+      100: '#dcfce7',
+      200: '#bbf7d0',
+      300: '#86efac',
+      400: '#4ade80',
+      500: '#16a34a',  // your new brand color
+      600: '#15803d',
+      700: '#166534',
+      800: '#14532d',
+    },
+    ```
+  </Step>
+  <Step title="Rebuild the stylesheet">
+    Run the build command to regenerate `output.css`:
+
+    ```bash
+    npm run build
+    ```
+  </Step>
+  <Step title="Verify in the browser">
+    Reload `index.html`. Buttons, card borders, icon backgrounds, and the hero gradient should all reflect the new color.
+  </Step>
+</Steps>
+
+## Change the font family
+
+The body font is declared in `tailwind.config.js` under `theme.extend.fontFamily`:
+
+```js
+fontFamily: {
+  sans: ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
+},
+```
+
+This sets the default `font-sans` stack. To change it:
+
+<Steps>
+  <Step title="Choose a replacement font">
+    Decide on a new font. If using a web font (e.g., Google Fonts), add the `<link>` import to the `<head>` of `index.html` before changing the config.
+  </Step>
+  <Step title="Update the fontFamily array">
+    Replace the font names in `tailwind.config.js`:
+
+    ```js
+    fontFamily: {
+      sans: ['Inter', 'system-ui', 'sans-serif'],
+    },
+    ```
+  </Step>
+  <Step title="Rebuild">
+    ```bash
+    npm run build
+    ```
+  </Step>
+</Steps>
+
+## Custom animations
+
+Three named animations are registered in `tailwind.config.js` under `theme.extend.animation` and `theme.extend.keyframes`:
+
+| Animation class | Behavior | Duration |
+|---|---|---|
+| `animate-float` | Gentle vertical float loop | 6 s infinite |
+| `animate-slideUp` | Fade + slide in from below | 0.8 s |
+| `animate-countUp` | Scale up from 0.8 with fade-in | 1 s |
+
+The full keyframe definitions are:
+
+```js
+animation: {
+  float:   'float 6s ease-in-out infinite',
+  slideUp: 'slideUp 0.8s ease-out',
+  countUp: 'countUp 1s ease-out',
+},
+keyframes: {
+  float: {
+    '0%, 100%': { transform: 'translateY(0px)' },
+    '50%':      { transform: 'translateY(30px)' },
+  },
+  slideUp: {
+    from: { opacity: '0', transform: 'translateY(50px)' },
+    to:   { opacity: '1', transform: 'translateY(0)' },
+  },
+  countUp: {
+    from: { opacity: '0', transform: 'scale(0.8)' },
+    to:   { opacity: '1', transform: 'scale(1)' },
+  },
+},
+```
+
+To change the duration or easing of an animation, edit the value string in the `animation` object (e.g., change `'0.8s ease-out'` to `'0.5s ease-in-out'`) and rebuild.
+
+## Custom CSS classes
+
+Component-level styles that are not expressible as utility classes — such as `.btn-primary`, `.service-card`, `.gradient-primary`, and `.section-title` — are written in `input.css`. This file is the Tailwind CSS source that gets compiled into `output.css`.
+
+To add or modify custom component styles:
+
+<Steps>
+  <Step title="Open input.css">
+    Open `input.css` at the project root.
+  </Step>
+  <Step title="Add or edit your styles">
+    Write standard CSS or use `@apply` directives to compose Tailwind utilities:
+
+    ```css
+    .my-custom-badge {
+      @apply inline-block px-3 py-1 rounded-full text-sm font-semibold bg-primary-100 text-primary-700;
+    }
+    ```
+  </Step>
+  <Step title="Rebuild">
+    ```bash
+    npm run build
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+  Use `@apply` to keep custom classes consistent with your Tailwind design tokens. Avoid hard-coding hex values in `input.css` when a token from `tailwind.config.js` already covers the color.
+</Tip>

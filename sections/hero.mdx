@@ -1,0 +1,165 @@
+---
+title: "Hero section — homepage introduction and CTAs"
+description: "The hero section presents ALESPI Solutions' value proposition, key stats (100+ projects, 15+ years), and call-to-action buttons linking to services and contact."
+---
+
+The hero section is the first thing visitors see when they land on the ALESPI Solutions site. It lives in `src/hero.html` and is loaded alongside `src/valores.html` into the `inicio` tab by `loadPartials()` in `script.js`.
+
+## Purpose
+
+The hero section serves three goals:
+
+- Communicate the company's core value proposition at a glance
+- Surface key trust indicators (project count, years of experience, sector focus)
+- Guide visitors toward the two most important next steps via CTA buttons
+
+## Content elements
+
+### Headline and subheadline
+
+The headline reads:
+
+> Soluciones HVAC con una presencia de marca **solida y profesional**
+
+The word "solida y profesional" is wrapped in a `hero-highlight` span that applies the brand gradient. Below the headline, the subheadline describes ALESPI's scope:
+
+> Diseno, instalacion y mantenimiento de sistemas de climatizacion para sector institucional, comercial e industrial, con enfoque en cumplimiento tecnico, continuidad operativa y confianza de largo plazo.
+
+A pill-shaped badge above the headline reads:
+
+> Ingenieria HVAC con identidad tecnica y ejecucion confiable
+
+### CTA buttons
+
+Two call-to-action buttons sit below the subheadline. Each button uses the `data-open-tab` attribute so that `initializeTabs()` in `script.js` intercepts the click, prevents default navigation, and programmatically activates the target tab.
+
+<CardGroup cols={2}>
+  <Card title="Solicitar cotizacion" icon="arrow-right">
+    Primary button. Links to the `contacto` tab. Uses `btn-primary btn-primary-light` classes with a hover lift and ripple effect.
+  </Card>
+  <Card title="Conocer servicios" icon="arrow-right">
+    Secondary button. Links to the `servicios` tab. Outlined style — white border that fills on hover.
+  </Card>
+</CardGroup>
+
+The HTML for a CTA button with `data-open-tab`:
+
+```html hero.html
+<a
+  href="#contacto"
+  data-open-tab="contacto"
+  class="btn-primary btn-primary-light inline-flex w-full sm:w-auto justify-center
+         hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group btn-ripple relative"
+>
+  <span class="flex items-center justify-center gap-2">
+    Solicitar cotizacion
+    <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform duration-300"></i>
+  </span>
+</a>
+```
+
+<Note>
+  The `href` attribute is present for accessibility and progressive enhancement, but `initializeTabs()` calls `event.preventDefault()` so the page never actually navigates to an anchor — it switches tabs instead.
+</Note>
+
+### How tab switching works
+
+`initializeTabs()` queries all `[data-open-tab]` elements and attaches a click listener to each:
+
+```js script.js
+tabLinks.forEach((link) => {
+  link.addEventListener('click', function(event) {
+    event.preventDefault();
+    activateTab(this.getAttribute('data-open-tab'));
+    navElement?.classList.remove('expanded');
+  });
+});
+```
+
+`activateTab(tabName)` hides all `.tab-content` elements, removes `tab-active` from all nav buttons, then reveals the target content panel and restarts its CSS animations.
+
+### Stat mini-cards
+
+Three frosted-glass stat cards appear below the CTAs, arranged in a 2-column grid on mobile and a 3-column grid on tablet and up:
+
+| Stat | Label |
+|------|-------|
+| `100+` | Proyectos |
+| `15+` | Anios de experiencia |
+| `HVAC` | Sector institucional e industrial |
+
+Each card uses `bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl`.
+
+## Hero card panel
+
+To the right of the content (below on mobile), a glassmorphic card panel displays the company logo and two sub-cards.
+
+### Company logo
+
+The logo image is centered inside a dark inner panel:
+
+```html hero.html
+<div class="rounded-[1.3rem] sm:rounded-[1.75rem] bg-dark/95 p-4 sm:p-6 md:p-8 border border-white/10">
+  <img
+    src="images/LOGO ALESPI BLANCO.png"
+    alt="Logo ALESPI Solutions"
+    class="w-full max-w-lg mx-auto object-contain"
+  >
+</div>
+```
+
+### Sub-cards
+
+Two white cards sit beneath the logo in a 2-column grid:
+
+<CardGroup cols={2}>
+  <Card title="Capacidad tecnica" icon="wrench">
+    **Diseno e ingenieria HVAC** — Soluciones desarrolladas con criterio tecnico para instalaciones institucionales, comerciales e industriales.
+  </Card>
+  <Card title="Ejecucion" icon="bolt">
+    **Instalacion, mantenimiento y respuesta** — Acompanamiento operativo para conservar desempeno, continuidad y confiabilidad en cada sistema.
+  </Card>
+</CardGroup>
+
+## Animated background
+
+The hero background uses layered CSS effects defined directly in `src/hero.html`:
+
+<AccordionGroup>
+  <Accordion title="Radial gradients">
+    Two `radial-gradient` overlays are applied via an inline `bg-[...]` utility on the section's first child div — one at the top-left corner and one at the bottom-right, both using semi-transparent brand blue tones.
+  </Accordion>
+  <Accordion title="Floating circles">
+    Three large white circles with low opacity (`opacity-10`) use custom Tailwind animations: `animate-float-1`, `animate-float-2`, and `animate-float-3`. These are defined in `tailwind.config.js` and produce a gentle vertical bob.
+  </Accordion>
+  <Accordion title="Pulsing ring and bouncing dot">
+    A 128 × 128 px outlined circle uses `animate-pulse`, and a small dot uses `animate-bounce-custom`. Both are hidden on mobile via `hidden sm:block`.
+  </Accordion>
+</AccordionGroup>
+
+## File location
+
+The hero markup lives in:
+
+```
+src/hero.html
+```
+
+It is injected into `index.html` via the `data-include` mechanism:
+
+```html index.html
+<div data-include="src/hero.html"></div>
+```
+
+The `inicio` tab also loads `src/valores.html` (Mision, Vision, Fortaleza) in the same panel.
+
+## Related sections
+
+<CardGroup cols={2}>
+  <Card title="Services section" icon="list" href="/sections/services">
+    The destination of the "Conocer servicios" CTA.
+  </Card>
+  <Card title="Contact section" icon="envelope" href="/sections/contact">
+    The destination of the "Solicitar cotizacion" CTA.
+  </Card>
+</CardGroup>
